@@ -1,4 +1,5 @@
-import {readFile, sleep} from "./helpers.js";
+import {readFile} from "./helpers.js";
+import {RenderGraph} from "./rendergraph.js";
 
 class Engine {
     constructor(canvas) {
@@ -23,6 +24,12 @@ class Engine {
         this.context.configure({
             device: this.device, format: this.canvasFormat,
         });
+
+        this.currentTime = 0.0;
+
+        this.updateCallbacks = [];
+
+        this.rendergraph = new RenderGraph(this);
 
         console.log("Done.");
 
@@ -64,7 +71,7 @@ class Engine {
         //
         // const pass = encoder.beginRenderPass({
         //     colorAttachments: [{
-        //         view: context.getCurrentTexture().createView(), loadOp: "clear", clearValue: {r: 0, g: 0, b: 0, a: 1}, // New line
+        //         view: this.context.getCurrentTexture().createView(), loadOp: "clear", clearValue: {r: 0, g: 0, b: 0, a: 1}, // New line
         //         storeOp: "store",
         //     }],
         // });
@@ -84,31 +91,47 @@ class Engine {
         requestAnimationFrame(this.updateInternal.bind(this));
     }
 
-    async updateInternal(chrono)
-    {
-        let lastTime = 0.0;
-        if (this.currentTime != undefined)
-        {
-            lastTime = this.currentTime;
-        }
+    async updateInternal(chrono) {
+        let lastTime = this.currentTime;
 
-        this.currentTime = chrono;
+        this.currentTime = chrono/1000.0;
         this.deltaTime = this.currentTime - lastTime;
 
-        document.title = "FPS: " + (1000.0/this.deltaTime).toFixed();
+        // console.log("FPS: " + (1.0 / this.deltaTime).toFixed());
+
+        this.updateCallbacks.forEach((callback) => {
+           callback(this);
+        });
 
         this.update();
+        this.render();
 
         requestAnimationFrame(this.updateInternal.bind(this));
     }
 
-    async update()
+    /**
+     * Add a callback that will be executed each frame. Might be expensive, try to not overuse this.
+     * @param callback a callback to run each frame. Must accept the engine as a paremeter.
+     */
+    async addUpdateCallback(callback)
     {
+        this.updateCallbacks.push(callback);
+    }
+
+    async update() {
 
     }
 
-    async cleanup()
-    {
+    async render() {
+        const encoder = this.device.createCommandEncoder();
+
+        this.rendergraph.render(encoder);
+
+        const commandBuffer = encoder.finish();
+        this.device.queue.submit([commandBuffer]);
+    }
+
+    async cleanup() {
 
     }
 }

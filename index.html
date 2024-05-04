@@ -9,6 +9,7 @@
     html, body {
         margin: 0 !important;
         padding: 0 !important;
+        font-family: "Cascadia Code", sans-serif;
     }
 
     canvas {
@@ -19,21 +20,64 @@
         border: none;
         margin: 0;
     }
+
+    .controls {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: white;
+        padding: 5px;
+        z-index: 0;
+        width: auto;
+        height: auto;
+    }
 </style>
 <body>
 <canvas></canvas>
+<!--
+<div class="controls">
+    <div id="fps">FPS: 0</div>
+</div> -->
 <script type="module" src="engine.js"></script>
 <script type="module" src="helpers.js"></script>
-<script  type="module">
-    import { Engine } from "./engine.js";
+<script type="module" src="rendergraph.js"></script>
+<script src="gl-matrix-min.js"></script>
+<script type="module">
+    import {Engine} from "./engine.js";
 
     const canvas = document.querySelector("canvas");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    // const fpsCounter = document.getElementById("fps");
+
     const engine = new Engine(canvas);
 
     await engine.init();
+
+    // await engine.addUpdateCallback((engine) => {
+    //     fpsCounter.textContent = "FPS: " + (1.0 / engine.deltaTime).toFixed();
+    // });
+
+    const rendergraph = engine.rendergraph;
+
+    rendergraph.addPass((engine, encoder) => {
+        const pass = encoder.beginRenderPass({
+            colorAttachments: [{
+                view: engine.context.getCurrentTexture().createView(),
+                loadOp: "clear",
+                clearValue: {
+                    r: 0,
+                    g: 0,
+                    b: 0,
+                    a: 1
+                },
+                storeOp: "store",
+            }],
+        });
+
+        pass.end();
+    });
 
     engine.run();
 
