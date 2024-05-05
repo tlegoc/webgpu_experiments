@@ -1,7 +1,8 @@
-import {readFile} from "./helpers.js";
-import {RenderGraph} from "./rendergraph.js";
+import {SceneGraph} from "./actors/SceneGraph.js";
+import {CameraData} from "./renderer/CameraData.js";
+import {degreeToRadian} from "./utils/Helpers.js";
 
-class Engine {
+export class Engine {
     constructor(canvas) {
         this.canvas = canvas;
     }
@@ -29,7 +30,14 @@ class Engine {
 
         this.updateCallbacks = [];
 
-        this.rendergraph = new RenderGraph(this);
+        this.passes = [];
+
+        this.scenegraph = new SceneGraph(this);
+
+        // Aspect ratio from canvas
+        this.aspectRatio = this.canvas.width / this.canvas.height;
+
+        this.currentCameraData = new CameraData(degreeToRadian(60), this.aspectRatio);
 
         console.log("Done.");
 
@@ -110,30 +118,35 @@ class Engine {
     }
 
     /**
-     * Add a callback that will be executed each frame. Might be expensive, try to not overuse this.
+     * Add a callback that will be executed each frame.
      * @param callback a callback to run each frame. Must accept the engine as a paremeter.
      */
-    async addUpdateCallback(callback)
+    addUpdateCallback(callback)
     {
         this.updateCallbacks.push(callback);
     }
 
-    async update() {
-
+    update() {
+        this.scenegraph.update();
     }
 
-    async render() {
+    addPass(callback)
+    {
+        this.passes.push(callback);
+    }
+
+    render() {
         const encoder = this.device.createCommandEncoder();
 
-        this.rendergraph.render(encoder);
+        this.passes.forEach((callback) => {
+            callback(this, encoder);
+        });
 
         const commandBuffer = encoder.finish();
         this.device.queue.submit([commandBuffer]);
     }
 
-    async cleanup() {
+    cleanup() {
 
     }
 }
-
-export {Engine};

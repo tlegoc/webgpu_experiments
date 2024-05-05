@@ -38,12 +38,11 @@
 <div class="controls">
     <div id="fps">FPS: 0</div>
 </div> -->
-<script type="module" src="engine.js"></script>
-<script type="module" src="helpers.js"></script>
-<script type="module" src="rendergraph.js"></script>
-<script src="gl-matrix-min.js"></script>
 <script type="module">
     import {Engine} from "./engine.js";
+    import {ExampleActor} from "./actors/ExampleActor.js";
+    import {Camera} from "./actors/Camera.js";
+    import {degreeToRadian} from "./utils/Helpers.js";
 
     const canvas = document.querySelector("canvas");
     canvas.width = window.innerWidth;
@@ -59,9 +58,7 @@
     //     fpsCounter.textContent = "FPS: " + (1.0 / engine.deltaTime).toFixed();
     // });
 
-    const rendergraph = engine.rendergraph;
-
-    rendergraph.addPass((engine, encoder) => {
+    engine.addPass((engine, encoder) => {
         const pass = encoder.beginRenderPass({
             colorAttachments: [{
                 view: engine.context.getCurrentTexture().createView(),
@@ -78,6 +75,10 @@
 
         pass.end();
     });
+
+
+
+    engine.scenegraph.addChild(new Camera(engine, degreeToRadian(60), engine.aspectRatio));
 
     engine.run();
 
