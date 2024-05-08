@@ -6,12 +6,10 @@ export class Camera extends BaseActor {
     {
         super(engine);
         this.cameradata = new CameraData(fov, aspect);
-
-        this.setMainCamera();
     }
 
     setMainCamera()
     {
-        this.engine.cameradata = this.cameradata;
+
     }
 }

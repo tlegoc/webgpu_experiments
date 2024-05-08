@@ -58,25 +58,7 @@
     //     fpsCounter.textContent = "FPS: " + (1.0 / engine.deltaTime).toFixed();
     // });
 
-    engine.addPass((engine, encoder) => {
-        const pass = encoder.beginRenderPass({
-            colorAttachments: [{
-                view: engine.context.getCurrentTexture().createView(),
-                loadOp: "clear",
-                clearValue: {
-                    r: 0,
-                    g: 0,
-                    b: 0,
-                    a: 1
-                },
-                storeOp: "store",
-            }],
-        });
-
-        pass.end();
-    });
-
-
+    engine.setupDefaultPasses();
 
     engine.scenegraph.addChild(new Camera(engine, degreeToRadian(60), engine.aspectRatio));
 

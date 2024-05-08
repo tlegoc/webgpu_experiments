@@ -1,6 +1,7 @@
 import {SceneGraph} from "./actors/SceneGraph.js";
 import {CameraData} from "./renderer/CameraData.js";
 import {degreeToRadian} from "./utils/Helpers.js";
+import {ClearPass} from "./passes/ClearPass.js";
 
 export class Engine {
     constructor(canvas) {
@@ -36,8 +37,6 @@ export class Engine {
 
         // Aspect ratio from canvas
         this.aspectRatio = this.canvas.width / this.canvas.height;
-
-        this.currentCameraData = new CameraData(degreeToRadian(60), this.aspectRatio);
 
         console.log("Done.");
 
@@ -119,7 +118,7 @@ export class Engine {
 
     /**
      * Add a callback that will be executed each frame.
-     * @param callback a callback to run each frame. Must accept the engine as a paremeter.
+     * @param callback a callback to run each frame. Must accept the engine as a parameter.
      */
     addUpdateCallback(callback)
     {
@@ -130,16 +129,16 @@ export class Engine {
         this.scenegraph.update();
     }
 
-    addPass(callback)
+    addPass(pass)
     {
-        this.passes.push(callback);
+        this.passes.push(pass);
     }
 
     render() {
         const encoder = this.device.createCommandEncoder();
 
-        this.passes.forEach((callback) => {
-            callback(this, encoder);
+        this.passes.forEach((pass) => {
+            pass.render(encoder);
         });
 
         const commandBuffer = encoder.finish();
@@ -148,5 +147,10 @@ export class Engine {
 
     cleanup() {
 
+    }
+
+    setupDefaultPasses()
+    {
+        this.addPass(new ClearPass(this));
     }
 }
