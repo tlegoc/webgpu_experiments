@@ -41,7 +41,7 @@
 <script type="module">
     import {Engine} from "./engine.js";
     import {ExampleActor} from "./actors/ExampleActor.js";
-    import {Camera} from "./actors/Camera.js";
+    import {CameraActor} from "./actors/CameraActor.js";
     import {degreeToRadian} from "./utils/Helpers.js";
 
     const canvas = document.querySelector("canvas");
@@ -60,7 +60,7 @@
 
     engine.setupDefaultPasses();
 
-    engine.scenegraph.addChild(new Camera(engine, degreeToRadian(60), engine.aspectRatio));
+    engine.scenegraph.addChild(new CameraActor(engine, degreeToRadian(60), engine.aspectRatio));
 
     engine.run();
 

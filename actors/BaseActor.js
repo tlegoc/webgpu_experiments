@@ -2,6 +2,7 @@ export class BaseActor {
     constructor(engine) {
         this.engine = engine;
         this.childs = [];
+        this.parent = null;
     }
 
     addChild(child)
@@ -12,6 +13,17 @@ export class BaseActor {
     removeChild(child)
     {
         this.childs.splice(this.childs.indexOf(child), 1);
+    }
+
+    setParent(parent)
+    {
+        if (this.parent != null)
+        {
+            this.parent.removeChild(this);
+        }
+
+        parent.addChild(this);
+        this.parent = parent;
     }
 
     update()

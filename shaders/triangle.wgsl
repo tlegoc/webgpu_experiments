@@ -6,7 +6,7 @@ struct Camera {
 @group(0) @binding(0) var<uniform> camera : Camera;
 
 struct VertexOutput {
-    @builtin(position) Position : vec4f
+    @builtin(position) position : vec4f
 }
 
 @vertex
